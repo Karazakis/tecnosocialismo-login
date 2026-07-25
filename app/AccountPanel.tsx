@@ -1,0 +1,50 @@
+"use client";
+
+import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+
+const products = [
+  { mark: "R", name: "Rizoma", description: "Cerca e scopri", href: "https://rizoma.tecnosocialismo.com" },
+  { mark: "I", name: "Iskra", description: "Pensa e costruisci", href: "https://iskra.tecnosocialismo.com/chat" },
+  { mark: "C", name: "Cloud", description: "Conserva e apri", href: "https://cloud.tecnosocialismo.com" },
+];
+
+export function AccountPanel({ user }: { user: { name: string; email: string } }) {
+  const [loading, setLoading] = useState(false);
+
+  async function signOut() {
+    setLoading(true);
+    await authClient.signOut();
+    window.location.assign("/");
+  }
+
+  return (
+    <section className="account-card" aria-labelledby="account-title">
+      <p className="eyebrow">IL TUO ACCOUNT</p>
+      <div className="identity-row">
+        <span>{initials(user.name)}</span>
+        <div>
+          <h1 id="account-title">{user.name}</h1>
+          <p>{user.email}</p>
+        </div>
+        <i>ATTIVO</i>
+      </div>
+      <div className="product-list">
+        {products.map((product) => (
+          <a href={product.href} key={product.name}>
+            <span>{product.mark}</span>
+            <div><strong>{product.name}</strong><small>{product.description}</small></div>
+            <b aria-hidden="true">↗</b>
+          </a>
+        ))}
+      </div>
+      <button className="signout-button" type="button" onClick={() => void signOut()} disabled={loading}>
+        {loading ? "Uscita…" : "Esci da tutti i servizi"}
+      </button>
+    </section>
+  );
+}
+
+function initials(name: string) {
+  return name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+}
