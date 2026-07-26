@@ -4,9 +4,12 @@ import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
 const products = [
-  { mark: "R", name: "Rizoma", description: "Cerca e scopri", href: "https://rizoma.tecnosocialismo.com" },
   { mark: "I", name: "Iskra", description: "Pensa e costruisci", href: "https://iskra.tecnosocialismo.com/chat" },
+  { mark: "R", name: "Rizoma", description: "Cerca e scopri", href: "https://rizoma.tecnosocialismo.com" },
   { mark: "C", name: "Cloud", description: "Conserva e apri", href: "https://cloud.tecnosocialismo.com" },
+  { mark: "M", name: "Mail", description: "Comunica", href: "https://mail.tecnosocialismo.com" },
+  { mark: "V", name: "Video", description: "Guarda e pubblica", href: "https://video.tecnosocialismo.com" },
+  { mark: "S", name: "Social", description: "Partecipa", href: "https://social.tecnosocialismo.com" },
 ];
 
 export function AccountPanel({ user }: { user: { name: string; email: string } }) {

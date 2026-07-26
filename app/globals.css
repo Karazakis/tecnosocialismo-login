@@ -20,6 +20,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .brand { color: var(--paper); text-decoration: none; display: flex; align-items: center; gap: 12px; letter-spacing: .18em; }
 .brand-dot { width: 17px; height: 17px; border-radius: 50% 44% 51% 42%; background: var(--orange); box-shadow: 0 0 28px rgba(255,90,10,.75); transform: rotate(28deg); }
 .suite-label { color: var(--muted); font: 11px/1 monospace; letter-spacing: .14em; }
+.login-suite { position: relative; }
+.login-suite summary { display: flex; align-items: center; gap: 10px; color: var(--muted); cursor: pointer; list-style: none; font: 10px/1 monospace; letter-spacing: .12em; text-transform: uppercase; }
+.login-suite summary::-webkit-details-marker { display: none; }.login-suite summary span { color: var(--orange); }
+.login-suite > div { position: absolute; z-index: 20; top: 28px; right: 0; width: 300px; padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; background: #11110f; border: 1px solid var(--line); box-shadow: 0 22px 55px rgba(0,0,0,.4); }
+.login-suite a { min-height: 43px; padding: 0 9px; display: grid; grid-template-columns: 25px 1fr auto; align-items: center; gap: 7px; color: var(--paper); border: 1px solid var(--line); text-decoration: none; font-size: 9px; }
+.login-suite a:hover { border-color: var(--orange); }.login-suite a i { width: 23px; height: 23px; display: grid; place-items: center; color: var(--black); background: var(--paper); font-style: normal; font-weight: 800; }.login-suite a b { color: var(--orange); }
 
 .intro-panel { position: relative; overflow: hidden; padding: clamp(52px, 8vw, 112px) 6vw; border-right: 1px solid var(--line); }
 .eyebrow { margin: 0 0 20px; color: var(--orange); font: 700 11px/1.2 monospace; letter-spacing: .17em; }
@@ -74,7 +80,7 @@ footer { grid-column: 1 / -1; display: flex; align-items: center; justify-conten
 }
 
 @media (max-width: 520px) {
-  .topbar { padding: 0 20px; }.suite-label { display: none; }
+  .topbar { padding: 0 20px; }.suite-label { display: none; }.login-suite > div { position: fixed; top: 72px; right: 10px; width: calc(100vw - 20px); }
   .intro-panel { min-height: 490px; padding: 44px 22px 210px; }
   .intro-panel h2 { font-size: 51px; }.intro-panel > p:not(.eyebrow) { font-size: 16px; }
   .access-card, .account-card { padding: 27px 20px; }

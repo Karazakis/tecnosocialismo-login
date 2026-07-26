@@ -4,10 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://login.tecnosocialismo.com"),
   title: "Login — Il tuo account Tecnosocialismo",
-  description: "Un solo account per Rizoma, Iskra, Cloud e i servizi della suite Tecnosocialismo.",
+  description: "Un solo account per Iskra, Rizoma, Cloud, Mail, Video, Social e tutta la suite Tecnosocialismo.",
   openGraph: {
     title: "Login — Un account, tutta la suite",
-    description: "L'identità condivisa di Rizoma, Iskra, Cloud e dei servizi Tecnosocialismo.",
+    description: "L'identità condivisa di tutti i servizi Tecnosocialismo.",
     type: "website",
     images: [{ url: "/og.png", width: 1733, height: 908, alt: "LOGIN — Un account, tutta la suite" }],
   },
