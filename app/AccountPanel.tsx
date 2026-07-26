@@ -10,6 +10,7 @@ const products = [
   { mark: "M", name: "Mail", description: "Comunica", href: "https://mail.tecnosocialismo.com" },
   { mark: "V", name: "Video", description: "Guarda e pubblica", href: "https://video.tecnosocialismo.com" },
   { mark: "S", name: "Social", description: "Partecipa", href: "https://social.tecnosocialismo.com" },
+  { mark: "G", name: "Messaggi", description: "Parla e collabora", href: "https://messaggi.tecnosocialismo.com" },
 ];
 
 export function AccountPanel({ user }: { user: { name: string; email: string } }) {

@@ -33,7 +33,7 @@ export default async function Home({
       <section className="intro-panel">
         <p className="eyebrow">UN ACCOUNT · TUTTA LA SUITE</p>
         <h2>La tua identità<br /><em>attraversa ogni spazio.</em></h2>
-        <p>Iskra, Rizoma, Cloud, Mail, Video e Social. Un accesso indipendente, riconosciuto in tutto l’ecosistema.</p>
+        <p>Iskra, Rizoma, Cloud, Mail, Video, Social e Messaggi. Un accesso indipendente, riconosciuto in tutto l’ecosistema.</p>
         <div className="network" aria-hidden="true">
           <span className="node node-a">R</span>
           <span className="node node-b">I</span>
@@ -64,6 +64,7 @@ const suiteLinks = [
   { mark: "M", label: "Mail", href: "https://mail.tecnosocialismo.com" },
   { mark: "V", label: "Video", href: "https://video.tecnosocialismo.com" },
   { mark: "S", label: "Social", href: "https://social.tecnosocialismo.com" },
+  { mark: "G", label: "Messaggi", href: "https://messaggi.tecnosocialismo.com" },
 ];
 
 function safeReturnUrl(value?: string) {
