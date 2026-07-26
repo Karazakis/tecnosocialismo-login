@@ -31,6 +31,7 @@ export const auth = betterAuth({
     max: 30,
   },
   advanced: {
+    cookiePrefix: "tecnosocialismo",
     useSecureCookies: baseURL.startsWith("https://"),
     ...(cookieDomain
       ? {
