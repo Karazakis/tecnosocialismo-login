@@ -4,6 +4,7 @@ const globalForDatabase = globalThis as unknown as {
   loginPool?: Pool;
   loginMessageSchema?: Promise<void>;
   loginMilitantSchema?: Promise<void>;
+  loginEconomicProfileSchema?: Promise<void>;
 };
 
 export const pool =
@@ -16,6 +17,25 @@ export const pool =
 
 if (process.env.NODE_ENV !== "production") {
   globalForDatabase.loginPool = pool;
+}
+
+export function ensureEconomicProfileSchema() {
+  if (!globalForDatabase.loginEconomicProfileSchema) {
+    globalForDatabase.loginEconomicProfileSchema = pool.query(`
+      CREATE TABLE IF NOT EXISTS economic_profiles (
+        user_id text PRIMARY KEY REFERENCES "user"(id) ON DELETE CASCADE,
+        profile jsonb NOT NULL,
+        version integer NOT NULL DEFAULT 1,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE INDEX IF NOT EXISTS economic_profiles_updated_idx ON economic_profiles(updated_at DESC);
+    `).then(() => undefined).catch((error) => {
+      globalForDatabase.loginEconomicProfileSchema = undefined;
+      throw error;
+    });
+  }
+  return globalForDatabase.loginEconomicProfileSchema;
 }
 
 export function ensureMessageSchema() {

@@ -50,7 +50,11 @@ export function AccessPanel({
             : "Email o password non corrette.",
         );
       }
-      window.location.assign(returnTo);
+      window.location.assign(
+        mode === "signup"
+          ? `/?setup=economy&returnTo=${encodeURIComponent(returnTo)}`
+          : returnTo,
+      );
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Operazione non riuscita.");
     } finally {

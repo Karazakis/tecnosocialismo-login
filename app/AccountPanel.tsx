@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 
 const products = [
@@ -11,6 +12,7 @@ const products = [
   { mark: "V", name: "Video", description: "Guarda e pubblica", href: "https://video.tecnosocialismo.com" },
   { mark: "S", name: "Social", description: "Partecipa", href: "https://social.tecnosocialismo.com" },
   { mark: "G", name: "Messaggi", description: "Parla e collabora", href: "https://messaggi.tecnosocialismo.com" },
+  { mark: "K", name: "Market", description: "Beni, spesa e consegne", href: "https://market.tecnosocialismo.com" },
 ];
 
 export function AccountPanel({ user }: { user: { name: string; email: string } }) {
@@ -42,6 +44,7 @@ export function AccountPanel({ user }: { user: { name: string; email: string } }
           </a>
         ))}
       </div>
+      <Link className="economic-profile-link" href="/?setup=economy"><span>SV</span><div><strong>Paniere e profilo economico</strong><small>Bisogni, lavoro e forme di contributo</small></div><b>→</b></Link>
       <button className="signout-button" type="button" onClick={() => void signOut()} disabled={loading}>
         {loading ? "Uscita…" : "Esci da tutti i servizi"}
       </button>

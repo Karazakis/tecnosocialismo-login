@@ -2,18 +2,25 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AccessPanel } from "./AccessPanel";
 import { AccountPanel } from "./AccountPanel";
+import { EconomicSetup } from "./EconomicSetup";
 import { auth } from "@/lib/auth";
+import { createDefaultEconomicProfile, getEconomicProfile } from "@/lib/economic-profile";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; returnTo?: string }>;
+  searchParams: Promise<{ mode?: string; returnTo?: string; setup?: string }>;
 }) {
   const params = await searchParams;
   const returnTo = safeReturnUrl(params.returnTo);
   const session = await auth.api.getSession({ headers: await headers() });
+
+  if (session?.user && params.setup === "economy") {
+    const profile = await getEconomicProfile(session.user.id);
+    return <EconomicSetup user={{ name: session.user.name || session.user.email, email: session.user.email }} initialProfile={profile ?? createDefaultEconomicProfile()} returnTo={returnTo} />;
+  }
 
   if (session?.user && params.returnTo) redirect(returnTo);
 
@@ -65,6 +72,7 @@ const suiteLinks = [
   { mark: "V", label: "Video", href: "https://video.tecnosocialismo.com" },
   { mark: "S", label: "Social", href: "https://social.tecnosocialismo.com" },
   { mark: "G", label: "Messaggi", href: "https://messaggi.tecnosocialismo.com" },
+  { mark: "K", label: "Market", href: "https://market.tecnosocialismo.com" },
 ];
 
 function safeReturnUrl(value?: string) {
