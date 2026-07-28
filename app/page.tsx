@@ -71,8 +71,13 @@ const suiteLinks = [
   { mark: "M", label: "Mail", href: "https://mail.tecnosocialismo.com" },
   { mark: "V", label: "Video", href: "https://video.tecnosocialismo.com" },
   { mark: "S", label: "Social", href: "https://social.tecnosocialismo.com" },
+  { mark: "F", label: "Sport", href: "https://sport.tecnosocialismo.com" },
   { mark: "G", label: "Messaggi", href: "https://messaggi.tecnosocialismo.com" },
   { mark: "K", label: "Market", href: "https://market.tecnosocialismo.com" },
+  { mark: "L", label: "Lavoro", href: "https://lavoro.tecnosocialismo.com" },
+  { mark: "Z", label: "Azienda", href: "https://azienda.tecnosocialismo.com" },
+  { mark: "E", label: "Servizi", href: "https://servizi.tecnosocialismo.com" },
+  { mark: "B", label: "Biblioteca", href: "https://biblioteca.tecnosocialismo.com" },
 ];
 
 function safeReturnUrl(value?: string) {

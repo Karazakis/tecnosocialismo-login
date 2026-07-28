@@ -11,8 +11,13 @@ const products = [
   { mark: "M", name: "Mail", description: "Comunica", href: "https://mail.tecnosocialismo.com" },
   { mark: "V", name: "Video", description: "Guarda e pubblica", href: "https://video.tecnosocialismo.com" },
   { mark: "S", name: "Social", description: "Partecipa", href: "https://social.tecnosocialismo.com" },
+  { mark: "F", name: "Sport", description: "Allenati e incontra persone", href: "https://sport.tecnosocialismo.com" },
   { mark: "G", name: "Messaggi", description: "Parla e collabora", href: "https://messaggi.tecnosocialismo.com" },
   { mark: "K", name: "Market", description: "Beni, spesa e consegne", href: "https://market.tecnosocialismo.com" },
+  { mark: "L", name: "Lavoro", description: "Trova e offri capacità", href: "https://lavoro.tecnosocialismo.com" },
+  { mark: "Z", name: "Azienda", description: "Gestisci e decidi insieme", href: "https://azienda.tecnosocialismo.com" },
+  { mark: "E", name: "Servizi", description: "Trova la capacità giusta", href: "https://servizi.tecnosocialismo.com" },
+  { mark: "B", name: "Biblioteca", description: "Leggi e conserva conoscenza", href: "https://biblioteca.tecnosocialismo.com" },
 ];
 
 export function AccountPanel({ user }: { user: { name: string; email: string } }) {

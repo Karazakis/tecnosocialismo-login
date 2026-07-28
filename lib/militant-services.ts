@@ -7,6 +7,12 @@ const services = [
   { id: "mail", name: "Mail", url: "https://mail.tecnosocialismo.com", healthUrl: "https://mail.tecnosocialismo.com" },
   { id: "video", name: "Video", url: "https://video.tecnosocialismo.com", healthUrl: "https://video.tecnosocialismo.com" },
   { id: "social", name: "Social", url: "https://social.tecnosocialismo.com", healthUrl: "https://social.tecnosocialismo.com" },
+  { id: "sport", name: "Sport", url: "https://sport.tecnosocialismo.com", healthUrl: "https://sport.tecnosocialismo.com" },
+  { id: "market", name: "Market", url: "https://market.tecnosocialismo.com", healthUrl: "https://market.tecnosocialismo.com" },
+  { id: "lavoro", name: "Lavoro", url: "https://lavoro.tecnosocialismo.com", healthUrl: "https://lavoro.tecnosocialismo.com" },
+  { id: "azienda", name: "Azienda", url: "https://azienda.tecnosocialismo.com", healthUrl: "https://azienda.tecnosocialismo.com" },
+  { id: "servizi", name: "Servizi", url: "https://servizi.tecnosocialismo.com", healthUrl: "https://servizi.tecnosocialismo.com" },
+  { id: "biblioteca", name: "Biblioteca", url: "https://biblioteca.tecnosocialismo.com", healthUrl: "https://biblioteca.tecnosocialismo.com" },
   { id: "messaggi", name: "Messaggi", url: "https://messaggi.tecnosocialismo.com", healthUrl: "https://messaggi.tecnosocialismo.com/api/health" },
   { id: "militant", name: "Militant", url: "https://militant.tecnosocialismo.com", healthUrl: "https://militant.tecnosocialismo.com/api/health" },
 ];
