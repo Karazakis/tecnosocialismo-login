@@ -28,7 +28,10 @@ export async function GET() {
       map.set(key, current);
     }
   }
-  return Response.json({ demand: [...map.values()].sort((a, b) => b.essentialCount - a.essentialCount || b.people - a.people) }, { headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" } });
+  const demand = [...map.values()]
+    .filter((item) => item.people >= 3)
+    .sort((a, b) => b.essentialCount - a.essentialCount || b.people - a.people);
+  return Response.json({ demand }, { headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" } });
 }
 
 function portalCategory(preference: EconomicPreference) {
