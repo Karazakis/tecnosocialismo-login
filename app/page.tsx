@@ -40,7 +40,7 @@ export default async function Home({
       <section className="intro-panel">
         <p className="eyebrow">UN ACCOUNT · TUTTA LA SUITE</p>
         <h2>La tua identità<br /><em>attraversa ogni spazio.</em></h2>
-        <p>Iskra, Rizoma, Cloud, Mail, Video, Social e Messaggi. Un accesso indipendente, riconosciuto in tutto l’ecosistema.</p>
+        <p>Ricerca, intelligenza, cloud, comunicazione, musica, cultura e organizzazione. Un accesso indipendente, riconosciuto in tutto l’ecosistema.</p>
         <div className="network" aria-hidden="true">
           <span className="node node-a">R</span>
           <span className="node node-b">I</span>
@@ -65,19 +65,22 @@ export default async function Home({
 
 const suiteLinks = [
   { mark: "T", label: "Home", href: "https://tecnosocialismo.com" },
-  { mark: "I", label: "Iskra", href: "https://iskra.tecnosocialismo.com" },
   { mark: "R", label: "Rizoma", href: "https://rizoma.tecnosocialismo.com" },
+  { mark: "I", label: "Iskra", href: "https://iskra.tecnosocialismo.com" },
   { mark: "C", label: "Cloud", href: "https://cloud.tecnosocialismo.com" },
   { mark: "M", label: "Mail", href: "https://mail.tecnosocialismo.com" },
   { mark: "V", label: "Video", href: "https://video.tecnosocialismo.com" },
+  { mark: "U", label: "Musica", href: "https://musica.tecnosocialismo.com" },
   { mark: "S", label: "Social", href: "https://social.tecnosocialismo.com" },
-  { mark: "F", label: "Sport", href: "https://sport.tecnosocialismo.com" },
   { mark: "G", label: "Messaggi", href: "https://messaggi.tecnosocialismo.com" },
+  { mark: "F", label: "Sport", href: "https://sport.tecnosocialismo.com" },
   { mark: "K", label: "Market", href: "https://market.tecnosocialismo.com" },
   { mark: "L", label: "Lavoro", href: "https://lavoro.tecnosocialismo.com" },
   { mark: "Z", label: "Azienda", href: "https://azienda.tecnosocialismo.com" },
   { mark: "E", label: "Servizi", href: "https://servizi.tecnosocialismo.com" },
   { mark: "B", label: "Biblioteca", href: "https://biblioteca.tecnosocialismo.com" },
+  { mark: "P", label: "Militant", href: "https://militant.tecnosocialismo.com" },
+  { mark: "A", label: "Account", href: "https://login.tecnosocialismo.com" },
 ];
 
 function safeReturnUrl(value?: string) {

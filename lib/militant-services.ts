@@ -6,6 +6,7 @@ const services = [
   { id: "cloud", name: "Cloud", url: "https://cloud.tecnosocialismo.com", healthUrl: "https://cloud.tecnosocialismo.com/api/health" },
   { id: "mail", name: "Mail", url: "https://mail.tecnosocialismo.com", healthUrl: "https://mail.tecnosocialismo.com" },
   { id: "video", name: "Video", url: "https://video.tecnosocialismo.com", healthUrl: "https://video.tecnosocialismo.com" },
+  { id: "musica", name: "Musica", url: "https://musica.tecnosocialismo.com", healthUrl: "https://musica.tecnosocialismo.com" },
   { id: "social", name: "Social", url: "https://social.tecnosocialismo.com", healthUrl: "https://social.tecnosocialismo.com" },
   { id: "sport", name: "Sport", url: "https://sport.tecnosocialismo.com", healthUrl: "https://sport.tecnosocialismo.com" },
   { id: "market", name: "Market", url: "https://market.tecnosocialismo.com", healthUrl: "https://market.tecnosocialismo.com" },

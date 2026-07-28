@@ -5,19 +5,21 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 
 const products = [
-  { mark: "I", name: "Iskra", description: "Pensa e costruisci", href: "https://iskra.tecnosocialismo.com/chat" },
   { mark: "R", name: "Rizoma", description: "Cerca e scopri", href: "https://rizoma.tecnosocialismo.com" },
+  { mark: "I", name: "Iskra", description: "Pensa e costruisci", href: "https://iskra.tecnosocialismo.com" },
   { mark: "C", name: "Cloud", description: "Conserva e apri", href: "https://cloud.tecnosocialismo.com" },
   { mark: "M", name: "Mail", description: "Comunica", href: "https://mail.tecnosocialismo.com" },
   { mark: "V", name: "Video", description: "Guarda e pubblica", href: "https://video.tecnosocialismo.com" },
+  { mark: "U", name: "Musica", description: "Ascolta e suona insieme", href: "https://musica.tecnosocialismo.com" },
   { mark: "S", name: "Social", description: "Partecipa", href: "https://social.tecnosocialismo.com" },
-  { mark: "F", name: "Sport", description: "Allenati e incontra persone", href: "https://sport.tecnosocialismo.com" },
   { mark: "G", name: "Messaggi", description: "Parla e collabora", href: "https://messaggi.tecnosocialismo.com" },
+  { mark: "F", name: "Sport", description: "Allenati e incontra persone", href: "https://sport.tecnosocialismo.com" },
   { mark: "K", name: "Market", description: "Beni, spesa e consegne", href: "https://market.tecnosocialismo.com" },
   { mark: "L", name: "Lavoro", description: "Trova e offri capacità", href: "https://lavoro.tecnosocialismo.com" },
   { mark: "Z", name: "Azienda", description: "Gestisci e decidi insieme", href: "https://azienda.tecnosocialismo.com" },
   { mark: "E", name: "Servizi", description: "Trova la capacità giusta", href: "https://servizi.tecnosocialismo.com" },
   { mark: "B", name: "Biblioteca", description: "Leggi e conserva conoscenza", href: "https://biblioteca.tecnosocialismo.com" },
+  { mark: "P", name: "Militant", description: "Organizza il progetto", href: "https://militant.tecnosocialismo.com" },
 ];
 
 export function AccountPanel({ user }: { user: { name: string; email: string } }) {
