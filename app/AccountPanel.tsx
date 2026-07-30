@@ -18,6 +18,10 @@ const products = [
   { mark: "L", name: "Lavoro", description: "Trova e offri capacità", href: "https://lavoro.tecnosocialismo.com" },
   { mark: "Z", name: "Azienda", description: "Gestisci e decidi insieme", href: "https://azienda.tecnosocialismo.com" },
   { mark: "E", name: "Servizi", description: "Trova la capacità giusta", href: "https://servizi.tecnosocialismo.com" },
+  { mark: "SA", name: "Salute", description: "Prevenzione e benessere", href: "https://salute.tecnosocialismo.com" },
+  { mark: "ED", name: "Educazione", description: "Impara lungo tutta la vita", href: "https://educazione.tecnosocialismo.com" },
+  { mark: "LE", name: "Legge", description: "Supporto legale e documenti", href: "https://legge.tecnosocialismo.com" },
+  { mark: "BU", name: "Burocrazia", description: "Gestisci pratiche e richieste", href: "https://burocrazia.tecnosocialismo.com" },
   { mark: "B", name: "Biblioteca", description: "Leggi e conserva conoscenza", href: "https://biblioteca.tecnosocialismo.com" },
   { mark: "P", name: "Militant", description: "Organizza il progetto", href: "https://militant.tecnosocialismo.com" },
 ];
