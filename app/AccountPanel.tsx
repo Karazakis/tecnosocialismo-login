@@ -22,6 +22,7 @@ const products = [
   { mark: "ED", name: "Educazione", description: "Impara lungo tutta la vita", href: "https://educazione.tecnosocialismo.com" },
   { mark: "LE", name: "Legge", description: "Supporto legale e documenti", href: "https://legge.tecnosocialismo.com" },
   { mark: "BU", name: "Burocrazia", description: "Gestisci pratiche e richieste", href: "https://burocrazia.tecnosocialismo.com" },
+  { mark: "PR", name: "Propaganda", description: "Organizza contenuti e diffusione", href: "https://propaganda.tecnosocialismo.com" },
   { mark: "B", name: "Biblioteca", description: "Leggi e conserva conoscenza", href: "https://biblioteca.tecnosocialismo.com" },
   { mark: "P", name: "Militant", description: "Organizza il progetto", href: "https://militant.tecnosocialismo.com" },
 ];

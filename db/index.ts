@@ -4,6 +4,7 @@ const globalForDatabase = globalThis as unknown as {
   loginPool?: Pool;
   loginMessageSchema?: Promise<void>;
   loginMilitantSchema?: Promise<void>;
+  loginPropagandaSchema?: Promise<void>;
   loginEconomicProfileSchema?: Promise<void>;
 };
 
@@ -87,6 +88,8 @@ export function ensureMilitantSchema() {
         added_at timestamptz NOT NULL DEFAULT now(),
         updated_at timestamptz NOT NULL DEFAULT now()
       );
+      ALTER TABLE militant_members ADD COLUMN IF NOT EXISTS level integer NOT NULL DEFAULT 1;
+      ALTER TABLE militant_members ADD COLUMN IF NOT EXISTS points integer NOT NULL DEFAULT 0;
       CREATE TABLE IF NOT EXISTS militant_tasks (
         id uuid PRIMARY KEY,
         title text NOT NULL,
@@ -151,4 +154,89 @@ export function ensureMilitantSchema() {
     });
   }
   return globalForDatabase.loginMilitantSchema;
+}
+
+export async function ensurePropagandaSchema() {
+  await ensureMilitantSchema();
+  if (!globalForDatabase.loginPropagandaSchema) {
+    globalForDatabase.loginPropagandaSchema = pool.query(`
+      CREATE TABLE IF NOT EXISTS propaganda_campaigns (
+        id uuid PRIMARY KEY,
+        title text NOT NULL,
+        objective text NOT NULL DEFAULT '',
+        audience text NOT NULL DEFAULT '',
+        status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','active','paused','completed')),
+        created_by text NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE TABLE IF NOT EXISTS propaganda_content (
+        id uuid PRIMARY KEY,
+        campaign_id uuid REFERENCES propaganda_campaigns(id) ON DELETE SET NULL,
+        format text NOT NULL CHECK (format IN ('card','post','thread','video','message')),
+        content_type text NOT NULL DEFAULT 'political' CHECK (content_type IN ('political','editorial','community')),
+        title text NOT NULL,
+        body text NOT NULL DEFAULT '',
+        call_to_action text NOT NULL DEFAULT '',
+        political_disclosure boolean NOT NULL DEFAULT true,
+        status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','review','approved','scheduled','published','archived')),
+        channels text[] NOT NULL DEFAULT '{}',
+        scheduled_at timestamptz,
+        author_id text NOT NULL,
+        author_name text NOT NULL,
+        metrics jsonb NOT NULL DEFAULT '{"impressions":0,"interactions":0,"shares":0,"clicks":0}'::jsonb,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE TABLE IF NOT EXISTS propaganda_events (
+        id uuid PRIMARY KEY,
+        social_event_id text,
+        title text NOT NULL,
+        description text NOT NULL DEFAULT '',
+        propaganda_component text NOT NULL DEFAULT '',
+        location text NOT NULL DEFAULT '',
+        starts_at timestamptz NOT NULL,
+        status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','approved','published','completed','cancelled')),
+        channels text[] NOT NULL DEFAULT '{}',
+        created_by text NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE TABLE IF NOT EXISTS propaganda_channels (
+        id uuid PRIMARY KEY,
+        name text NOT NULL,
+        platform text NOT NULL,
+        external_handle text NOT NULL DEFAULT '',
+        mode text NOT NULL CHECK (mode IN ('manual','oauth','opt-in-feed')),
+        status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','connected','paused')),
+        cadence text NOT NULL DEFAULT '',
+        auto_generation boolean NOT NULL DEFAULT false,
+        editorial_mix jsonb NOT NULL DEFAULT '{"political":40,"editorial":40,"community":20}'::jsonb,
+        transparency_note text NOT NULL DEFAULT '',
+        created_by text NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE TABLE IF NOT EXISTS propaganda_activity (
+        id uuid PRIMARY KEY,
+        actor_id text NOT NULL,
+        actor_name text NOT NULL,
+        kind text NOT NULL CHECK (kind IN ('share','event','outreach','report','production')),
+        title text NOT NULL,
+        evidence text NOT NULL DEFAULT '',
+        status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','verified','rejected')),
+        points integer NOT NULL DEFAULT 0,
+        verified_by text,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        verified_at timestamptz
+      );
+      CREATE INDEX IF NOT EXISTS propaganda_content_status_idx ON propaganda_content(status, scheduled_at, updated_at DESC);
+      CREATE INDEX IF NOT EXISTS propaganda_events_status_idx ON propaganda_events(status, starts_at);
+      CREATE INDEX IF NOT EXISTS propaganda_activity_actor_idx ON propaganda_activity(actor_id, created_at DESC);
+    `).then(() => undefined).catch((error) => {
+      globalForDatabase.loginPropagandaSchema = undefined;
+      throw error;
+    });
+  }
+  return globalForDatabase.loginPropagandaSchema;
 }

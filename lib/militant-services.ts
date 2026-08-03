@@ -17,6 +17,7 @@ const services = [
   { id: "educazione", name: "Educazione", url: "https://educazione.tecnosocialismo.com", healthUrl: "https://educazione.tecnosocialismo.com" },
   { id: "legge", name: "Legge", url: "https://legge.tecnosocialismo.com", healthUrl: "https://legge.tecnosocialismo.com" },
   { id: "burocrazia", name: "Burocrazia", url: "https://burocrazia.tecnosocialismo.com", healthUrl: "https://burocrazia.tecnosocialismo.com" },
+  { id: "propaganda", name: "Propaganda", url: "https://propaganda.tecnosocialismo.com", healthUrl: "https://propaganda.tecnosocialismo.com" },
   { id: "biblioteca", name: "Biblioteca", url: "https://biblioteca.tecnosocialismo.com", healthUrl: "https://biblioteca.tecnosocialismo.com" },
   { id: "messaggi", name: "Messaggi", url: "https://messaggi.tecnosocialismo.com", healthUrl: "https://messaggi.tecnosocialismo.com/api/health" },
   { id: "militant", name: "Militant", url: "https://militant.tecnosocialismo.com", healthUrl: "https://militant.tecnosocialismo.com/api/health" },

@@ -82,6 +82,7 @@ const suiteLinks = [
   { mark: "ED", label: "Educazione", href: "https://educazione.tecnosocialismo.com" },
   { mark: "LE", label: "Legge", href: "https://legge.tecnosocialismo.com" },
   { mark: "BU", label: "Burocrazia", href: "https://burocrazia.tecnosocialismo.com" },
+  { mark: "PR", label: "Propaganda", href: "https://propaganda.tecnosocialismo.com" },
   { mark: "B", label: "Biblioteca", href: "https://biblioteca.tecnosocialismo.com" },
   { mark: "P", label: "Militant", href: "https://militant.tecnosocialismo.com" },
   { mark: "A", label: "Account", href: "https://login.tecnosocialismo.com" },
