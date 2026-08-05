@@ -49,7 +49,7 @@ export async function requireMilitant(request: Request, minimum: MilitantRole = 
     status: row.status,
     areas: row.areas,
     addedAt: iso(row.added_at),
-    level: Number(row.level ?? 1),
+    level: Number(row.level ?? 0),
     points: Number(row.points ?? 0),
     permissions: permissionsFor(row.role),
   };
@@ -296,7 +296,7 @@ function publicTask(row: Record<string, unknown>) {
     tags: row.tags ?? [], commentCount: Number(row.comment_count ?? 0), createdAt: iso(row.created_at as Date | string), updatedAt: iso(row.updated_at as Date | string) };
 }
 function publicFeedback(row: Record<string, unknown>) { return { id: row.id, service: row.service, kind: row.kind, title: row.title, description: row.description, status: row.status, priority: row.priority, reporterId: row.reporter_id ?? null, reporterName: row.reporter_name ?? "Sistema", createdAt: iso(row.created_at as Date | string), updatedAt: iso(row.updated_at as Date | string) }; }
-function memberFromRow(row: { user_id: string; name: string | null; email: string; role: MilitantRole; status: "active" | "suspended"; areas: string[]; added_at: Date | string; level: number; points: number }): MilitantMember { return { id: row.user_id, name: row.name || row.email.split("@")[0], email: row.email, role: row.role, status: row.status, areas: row.areas, addedAt: iso(row.added_at), level: Number(row.level ?? 1), points: Number(row.points ?? 0) }; }
+function memberFromRow(row: { user_id: string; name: string | null; email: string; role: MilitantRole; status: "active" | "suspended"; areas: string[]; added_at: Date | string; level: number; points: number }): MilitantMember { return { id: row.user_id, name: row.name || row.email.split("@")[0], email: row.email, role: row.role, status: row.status, areas: row.areas, addedAt: iso(row.added_at), level: Number(row.level ?? 0), points: Number(row.points ?? 0) }; }
 function safeText(value: unknown, max: number) { return typeof value === "string" ? value.replace(/\0/g, "").replace(/\r\n/g, "\n").trim().slice(0, max) : ""; }
 function safeArray(value: unknown, maxItems: number, maxLength: number) { if (!Array.isArray(value)) return []; return [...new Set(value.map((item) => safeText(item, maxLength)).filter(Boolean))].slice(0, maxItems); }
 function safeDate(value: unknown) { if (value === null || value === "") return null; if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new MilitantError("Data non valida.", 400); return value; }

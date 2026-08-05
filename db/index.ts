@@ -90,6 +90,41 @@ export function ensureMilitantSchema() {
       );
       ALTER TABLE militant_members ADD COLUMN IF NOT EXISTS level integer NOT NULL DEFAULT 1;
       ALTER TABLE militant_members ADD COLUMN IF NOT EXISTS points integer NOT NULL DEFAULT 0;
+      ALTER TABLE militant_members ALTER COLUMN level SET DEFAULT 0;
+      CREATE TABLE IF NOT EXISTS militant_xp_events (
+        id uuid PRIMARY KEY,
+        user_id text NOT NULL,
+        source_type text NOT NULL CHECK (source_type IN ('training','propaganda','quest','task','community')),
+        source_id text NOT NULL,
+        class_id text NOT NULL CHECK (class_id IN ('comunicatore','organizzatore','mutualista','formatore','costruttore','ricercatore')),
+        points integer NOT NULL CHECK (points > 0),
+        details jsonb NOT NULL DEFAULT '{}',
+        created_at timestamptz NOT NULL DEFAULT now(),
+        UNIQUE (user_id, source_type, source_id)
+      );
+      CREATE TABLE IF NOT EXISTS militant_training_progress (
+        user_id text NOT NULL,
+        module_id text NOT NULL,
+        status text NOT NULL DEFAULT 'available' CHECK (status IN ('available','completed')),
+        attempts integer NOT NULL DEFAULT 0,
+        score integer NOT NULL DEFAULT 0,
+        completed_at timestamptz,
+        updated_at timestamptz NOT NULL DEFAULT now(),
+        PRIMARY KEY (user_id, module_id)
+      );
+      CREATE TABLE IF NOT EXISTS militant_quest_progress (
+        user_id text NOT NULL,
+        quest_id text NOT NULL,
+        status text NOT NULL DEFAULT 'joined' CHECK (status IN ('joined','submitted','verified','rejected')),
+        evidence text NOT NULL DEFAULT '',
+        points_awarded integer NOT NULL DEFAULT 0,
+        joined_at timestamptz NOT NULL DEFAULT now(),
+        submitted_at timestamptz,
+        verified_at timestamptz,
+        verified_by text,
+        updated_at timestamptz NOT NULL DEFAULT now(),
+        PRIMARY KEY (user_id, quest_id)
+      );
       CREATE TABLE IF NOT EXISTS militant_tasks (
         id uuid PRIMARY KEY,
         title text NOT NULL,
@@ -139,7 +174,19 @@ export function ensureMilitantSchema() {
       CREATE INDEX IF NOT EXISTS militant_tasks_assignee_idx ON militant_tasks(assignee_id, status);
       CREATE INDEX IF NOT EXISTS militant_feedback_status_idx ON militant_feedback(status, updated_at DESC);
       CREATE INDEX IF NOT EXISTS militant_audit_created_idx ON militant_audit(created_at DESC);
+      CREATE INDEX IF NOT EXISTS militant_xp_user_idx ON militant_xp_events(user_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS militant_training_user_idx ON militant_training_progress(user_id, completed_at DESC);
+      CREATE INDEX IF NOT EXISTS militant_quest_status_idx ON militant_quest_progress(status, updated_at DESC);
     `).then(async () => {
+      await pool.query(`
+        UPDATE militant_members
+        SET level = 0, updated_at = now()
+        WHERE level = 1 AND points = 0 AND role IN ('observer','contributor')
+          AND NOT EXISTS (
+            SELECT 1 FROM militant_training_progress p
+            WHERE p.user_id = militant_members.user_id AND p.status = 'completed'
+          )
+      `);
       const ownerEmail = process.env.MILITANT_OWNER_EMAIL?.trim().toLocaleLowerCase("en-US");
       if (!ownerEmail) return;
       await pool.query(`

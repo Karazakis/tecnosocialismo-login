@@ -1,5 +1,6 @@
 import { ensurePropagandaSchema, pool } from "@/db";
 import { audit, requireMilitant, type MilitantActor, type MilitantRole } from "@/lib/militant";
+import { awardMilitantPoints, propagandaStage, type MilitantClassId } from "@/lib/militant-progression";
 
 const roleRank: Record<MilitantRole, number> = { observer: 0, contributor: 1, coordinator: 2, admin: 3, owner: 4 };
 const contentStatuses = ["draft", "review", "approved", "scheduled", "published", "archived"] as const;
@@ -9,14 +10,21 @@ const formats = ["card", "post", "thread", "video", "message"] as const;
 const contentTypes = ["political", "editorial", "community"] as const;
 const activityKinds = ["share", "event", "outreach", "report", "production"] as const;
 const pointValues: Record<(typeof activityKinds)[number], number> = { share: 3, event: 20, outreach: 8, report: 5, production: 12 };
+const activityClasses: Record<(typeof activityKinds)[number], MilitantClassId> = { share: "comunicatore", event: "organizzatore", outreach: "organizzatore", report: "ricercatore", production: "comunicatore" };
+const guidedTemplates = [
+  { id: "tempo-liberato", title: "La tecnologia deve liberare tempo", body: "Automazione e capacità scientifica possono ridurre il lavoro necessario e ampliare ciò che scegliamo di fare insieme.", callToAction: "Scopri il progetto", contentType: "political" as const },
+  { id: "bisogni-reali", title: "Organizzare i bisogni reali", body: "Un dato utile non sorveglia le persone: aiuta una comunità a capire cosa manca e come costruirlo.", callToAction: "Leggi il manifesto", contentType: "editorial" as const },
+  { id: "rete-usabile", title: "Una rete cresce quando può essere usata", body: "Portali aperti, strumenti comuni, formazione accessibile e organizzazione territoriale rendono concreta la partecipazione.", callToAction: "Esplora i portali", contentType: "community" as const },
+  { id: "valore-sociale", title: "Il valore parte dai bisogni", body: "Misurare ciò che serve, ciò che possiamo fare e il tempo disponibile permette decisioni più trasparenti del solo prezzo di mercato.", callToAction: "Approfondisci", contentType: "political" as const },
+];
 
-export type PropagandaActor = MilitantActor & { propagandaPermissions: string[] };
+export type PropagandaActor = MilitantActor & { propagandaPermissions: string[]; propagandaProfile: ReturnType<typeof propagandaStage> };
 
 export async function requirePropaganda(request: Request, minimum: MilitantRole = "observer"): Promise<PropagandaActor> {
   await ensurePropagandaSchema();
   const actor = await requireMilitant(request, minimum);
   if (actor.level < 1) throw new PropagandaError("Completa il livello 1 su Militant per accedere alla cabina.", 403, "LEVEL_REQUIRED");
-  return { ...actor, propagandaPermissions: permissionsFor(actor.role) };
+  return { ...actor, propagandaPermissions: permissionsFor(actor.role, actor.level), propagandaProfile: propagandaStage(actor.level) };
 }
 
 export async function publicPortal() {
@@ -57,6 +65,8 @@ export async function propagandaDashboard(actor: PropagandaActor) {
   ]);
   return {
     actor,
+    progression: actor.propagandaProfile,
+    guidedTemplates,
     metrics,
     campaigns: campaigns.rows.map(campaignRow),
     content: content.rows.map(contentRow),
@@ -70,6 +80,7 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   const action = text(input.action, 60);
   if (action === "create-campaign") {
     requireRole(actor, "coordinator");
+    requireProgressLevel(actor, 5, "La regia di campagna si sblocca al livello 5.");
     const title = required(input.title, 180, "Inserisci il nome della campagna.");
     const id = crypto.randomUUID();
     await pool.query("INSERT INTO propaganda_campaigns(id,title,objective,audience,status,created_by) VALUES($1,$2,$3,$4,$5,$6)", [id, title, text(input.objective, 4000), text(input.audience, 800), oneOf(input.status, ["draft", "active", "paused", "completed"] as const, "draft"), actor.id]);
@@ -78,17 +89,30 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   }
   if (action === "create-content") {
     requireRole(actor, "contributor");
-    const title = required(input.title, 180, "Inserisci il titolo del contenuto.");
-    const contentType = oneOf(input.contentType, contentTypes, "political");
+    requireProgressLevel(actor, 2, "Al livello 1 puoi condividere i contenuti approvati; la creazione assistita si sblocca al livello 2.");
+    const template = guidedTemplates.find((item) => item.id === text(input.templateId, 80));
+    if (actor.level < 4 && !template) throw new PropagandaError("Seleziona un modello approvato per creare il contenuto.", 400, "TEMPLATE_REQUIRED");
+    const guided = actor.level < 4;
+    const title = guided ? template!.title : required(input.title, 180, "Inserisci il titolo del contenuto.");
+    const body = guided ? template!.body : text(input.body, 12000);
+    const contentType = guided ? template!.contentType : oneOf(input.contentType, contentTypes, "political");
+    const availableFormats = actor.level === 2 ? (["card", "post"] as const) : actor.level === 3 ? (["card", "post", "thread"] as const) : formats;
+    const format = oneOf(input.format, availableFormats, "post");
+    const channelLimit = actor.level === 2 ? 1 : actor.level === 3 ? 3 : 12;
+    const channels = list(input.channels, channelLimit);
+    const callToAction = actor.level >= 3 ? text(input.callToAction, 500) || template?.callToAction || "" : template?.callToAction || "";
+    const status = actor.level >= 4 ? oneOf(input.status, contentStatuses, "draft") : "review";
+    const scheduledAt = actor.level >= 4 ? dateOrNull(input.scheduledAt) : null;
     const disclosure = contentType === "political" ? true : Boolean(input.politicalDisclosure);
     const id = crypto.randomUUID();
     await pool.query(`INSERT INTO propaganda_content(id,campaign_id,format,content_type,title,body,call_to_action,political_disclosure,status,channels,scheduled_at,author_id,author_name)
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`, [id, uuidOrNull(input.campaignId), oneOf(input.format, formats, "post"), contentType, title, text(input.body, 12000), text(input.callToAction, 500), disclosure, oneOf(input.status, contentStatuses, "draft"), list(input.channels, 12), dateOrNull(input.scheduledAt), actor.id, actor.name]);
-    await audit(actor, "propaganda.content_created", "propaganda_content", id, { title, contentType });
+      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`, [id, actor.level >= 5 ? uuidOrNull(input.campaignId) : null, format, contentType, title, body, callToAction, disclosure, status, channels, scheduledAt, actor.id, actor.name]);
+    await audit(actor, "propaganda.content_created", "propaganda_content", id, { title, contentType, level: actor.level, guided });
     return { message: "Contenuto aggiunto alla scaletta.", id };
   }
   if (action === "update-content") {
     requireRole(actor, "coordinator");
+    requireProgressLevel(actor, 4, "Revisione e programmazione si sbloccano al livello 4.");
     const id = uuid(input.id);
     const current = (await pool.query("SELECT content_type FROM propaganda_content WHERE id=$1", [id])).rows[0];
     if (!current) throw new PropagandaError("Contenuto non trovato.", 404);
@@ -99,6 +123,7 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   }
   if (action === "create-channel") {
     requireRole(actor, "coordinator");
+    requireProgressLevel(actor, 5, "La gestione dei publisher si sblocca al livello 5.");
     const name = required(input.name, 160, "Inserisci il nome della pagina o del gruppo.");
     const id = crypto.randomUUID();
     const mix = normalizeMix(input.editorialMix);
@@ -109,6 +134,7 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   }
   if (action === "update-channel") {
     requireRole(actor, "coordinator");
+    requireProgressLevel(actor, 5, "La gestione dei publisher si sblocca al livello 5.");
     const id = uuid(input.id);
     await pool.query("UPDATE propaganda_channels SET status=$2,cadence=COALESCE(NULLIF($3,''),cadence),auto_generation=$4,editorial_mix=$5,updated_at=now() WHERE id=$1", [id, oneOf(input.status, channelStatuses, "paused"), text(input.cadence, 300), Boolean(input.autoGeneration), JSON.stringify(normalizeMix(input.editorialMix))]);
     await audit(actor, "propaganda.channel_updated", "propaganda_channel", id, {});
@@ -116,6 +142,7 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   }
   if (action === "create-event") {
     requireRole(actor, "contributor");
+    requireProgressLevel(actor, 3, "Gli eventi collegati si sbloccano con le real-life quest al livello 3.");
     const title = required(input.title, 180, "Inserisci il titolo dell’evento.");
     const id = crypto.randomUUID();
     const startsAt = dateOrNull(input.startsAt);
@@ -127,6 +154,7 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   }
   if (action === "update-event") {
     requireRole(actor, "coordinator");
+    requireProgressLevel(actor, 4, "La gestione editoriale degli eventi si sblocca al livello 4.");
     const id = uuid(input.id);
     const status = oneOf(input.status, eventStatuses, "draft");
     await pool.query("UPDATE propaganda_events SET status=$2,channels=CASE WHEN cardinality($3::text[])>0 THEN $3 ELSE channels END,updated_at=now() WHERE id=$1", [id, status, list(input.channels, 12)]);
@@ -135,6 +163,7 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   }
   if (action === "record-metrics") {
     requireRole(actor, "coordinator");
+    requireProgressLevel(actor, 3, "L’analisi avanzata si sblocca al livello 3.");
     const id = uuid(input.id);
     const metrics = { impressions: integer(input.impressions), interactions: integer(input.interactions), shares: integer(input.shares), clicks: integer(input.clicks) };
     await pool.query("UPDATE propaganda_content SET metrics=$2,updated_at=now() WHERE id=$1", [id, JSON.stringify(metrics)]);
@@ -143,6 +172,7 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   }
   if (action === "log-activity") {
     requireRole(actor, "contributor");
+    requireProgressLevel(actor, 1, "Completa il livello 1 su Militant.");
     const kind = oneOf(input.kind, activityKinds, "share");
     const title = required(input.title, 220, "Descrivi l’attività svolta.");
     const id = crypto.randomUUID();
@@ -152,13 +182,14 @@ export async function propagandaAction(actor: PropagandaActor, input: Record<str
   }
   if (action === "verify-activity") {
     requireRole(actor, "coordinator");
+    requireProgressLevel(actor, 3, "La verifica delle attività si sblocca al livello 3.");
     const id = uuid(input.id);
     const status = input.approved === false ? "rejected" : "verified";
-    const row = (await pool.query("SELECT actor_id,points,status FROM propaganda_activity WHERE id=$1 FOR UPDATE", [id])).rows[0];
+    const row = (await pool.query("SELECT actor_id,points,status,kind FROM propaganda_activity WHERE id=$1", [id])).rows[0] as { actor_id: string; points: number; status: string; kind: (typeof activityKinds)[number] } | undefined;
     if (!row) throw new PropagandaError("Attività non trovata.", 404);
     if (row.status !== "pending") throw new PropagandaError("Questa attività è già stata verificata.", 409);
+    if (status === "verified") await awardMilitantPoints(row.actor_id, "propaganda", id, activityClasses[row.kind] ?? "comunicatore", Number(row.points), { kind: row.kind });
     await pool.query("UPDATE propaganda_activity SET status=$2,verified_by=$3,verified_at=now() WHERE id=$1", [id, status, actor.id]);
-    if (status === "verified") await pool.query("UPDATE militant_members SET points=points+$2,level=GREATEST(level,1+floor((points+$2)/250)::int),updated_at=now() WHERE user_id=$1", [row.actor_id, row.points]);
     await audit(actor, "propaganda.activity_verified", "propaganda_activity", id, { status, points: status === "verified" ? row.points : 0 });
     return { message: status === "verified" ? "Attività verificata e punti Militant assegnati." : "Attività respinta." };
   }
@@ -180,17 +211,21 @@ async function metricSummary() {
   return { published: Number(row?.published ?? 0), impressions: Number(row?.impressions ?? 0), interactions: Number(row?.interactions ?? 0), shares: Number(row?.shares ?? 0), clicks: Number(row?.clicks ?? 0), activeEvents: Number(row?.active_events ?? 0), connectedChannels: Number(row?.connected_channels ?? 0) };
 }
 
-function permissionsFor(role: MilitantRole) {
-  const common = ["public:view", "analytics:view"];
-  if (role === "observer") return common;
-  const contributor = [...common, "content:create", "events:create", "activity:submit"];
-  if (role === "contributor") return contributor;
-  const coordinator = [...contributor, "content:review", "schedule:manage", "publishers:manage", "activity:verify"];
-  if (role === "coordinator") return coordinator;
-  return [...coordinator, "campaigns:manage", "settings:manage"];
+function permissionsFor(role: MilitantRole, level: number) {
+  const permissions = ["public:view", "analytics:view", "library:share"];
+  if (role !== "observer" && level >= 1) permissions.push("activity:submit");
+  if (role !== "observer" && level >= 2) permissions.push("content:create-guided");
+  if (role !== "observer" && level >= 3) permissions.push("events:create", "content:contextualize");
+  if (role !== "observer" && level >= 4) permissions.push("content:create", "schedule:propose");
+  if (roleRank[role] >= roleRank.coordinator && level >= 3) permissions.push("activity:verify");
+  if (roleRank[role] >= roleRank.coordinator && level >= 4) permissions.push("content:review", "schedule:manage");
+  if (roleRank[role] >= roleRank.coordinator && level >= 5) permissions.push("publishers:manage", "campaigns:manage");
+  if (roleRank[role] >= roleRank.admin && level >= 5) permissions.push("settings:manage");
+  return permissions;
 }
 
 function requireRole(actor: PropagandaActor, minimum: MilitantRole) { if (roleRank[actor.role] < roleRank[minimum]) throw new PropagandaError("Non hai il livello di permesso necessario.", 403); }
+function requireProgressLevel(actor: PropagandaActor, level: number, message: string) { if (actor.level < level) throw new PropagandaError(message, 403, "LEVEL_REQUIRED"); }
 function text(value: unknown, max: number) { return typeof value === "string" ? value.replace(/\0/g, "").trim().slice(0, max) : ""; }
 function required(value: unknown, max: number, message: string) { const result = text(value, max); if (!result) throw new PropagandaError(message, 400); return result; }
 function list(value: unknown, max: number) { const values = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : []; return [...new Set(values.map((item) => text(item, 80)).filter(Boolean))].slice(0, max); }
